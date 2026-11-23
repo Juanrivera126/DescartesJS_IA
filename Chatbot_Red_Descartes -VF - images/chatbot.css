@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root { --ink: #111936; --muted: #5c6684; --line: #dbe1f1; --surface: #fff; --primary: #5965e8; --secondary: #a44bd4; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; padding: 0; color: var(--ink); font-family: 'Plus Jakarta Sans', sans-serif; background: #eef1f8; }
+.app-shell { position: fixed; inset: 0; z-index: 10; width: 100%; height: 100dvh; margin: 0; pointer-events: none; }
+.scene-shell { position: fixed; inset: 0; overflow: visible; min-height: 0; border: 0; background: transparent; pointer-events: none; }
+.response-card { position: absolute; top: 50%; left: 50%; width: min(680px, calc(100% - 48px)); min-height: 325px; transform: translate(-50%, -50%); padding: 22px 26px; border: 1px solid rgba(255,255,255,.65); border-radius: 18px; color: #fff; background: rgba(28, 24, 82, .73); box-shadow: 0 15px 35px rgba(32, 20, 80, .25); backdrop-filter: blur(10px); pointer-events: auto; }
+.response-heading { display: flex; align-items: center; gap: 9px; font: 600 1.05rem 'Outfit', sans-serif; letter-spacing: .02em; }
+.response-dot { width: 9px; height: 9px; border-radius: 50%; background: #73f2c5; box-shadow: 0 0 12px #73f2c5; }
+#response-text { max-height: 258px; margin: 20px 0 0; overflow: auto; white-space: pre-wrap; font-size: 1rem; line-height: 1.65; }
+.prompt-bar { position: absolute; right: 24px; bottom: 20px; left: 24px; display: flex; gap: 12px; align-items: stretch; pointer-events: auto; }
+#prompt-input, select, input { width: 100%; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: rgba(255,255,255,.94); font-family: inherit; }
+#prompt-input { resize: vertical; min-height: 54px; padding: 13px 15px; }
+select, input { padding: 10px 12px; }
+#prompt-input:focus, select:focus, input:focus { outline: 3px solid rgba(89,101,232,.2); border-color: var(--primary); }
+.send-button, .small-button, .clear-button { border: 0; border-radius: 10px; padding: 0 22px; color: #fff; font: 600 .92rem 'Plus Jakarta Sans', sans-serif; cursor: pointer; background: linear-gradient(135deg, var(--primary), var(--secondary)); }
+.send-button:hover, .small-button:hover, .clear-button:hover { filter: brightness(1.08); }
+button:disabled { opacity: .55; cursor: wait; }
+.settings-panel { position: fixed; top: 16px; right: 16px; left: 16px; padding: 16px 20px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.96); box-shadow: 0 10px 25px rgba(31,40,89,.12); pointer-events: auto; }
+.settings-title { display: flex; justify-content: space-between; margin-bottom: 15px; font: 700 1.08rem 'Outfit', sans-serif; }
+.settings-title small { color: var(--muted); font: 400 .78rem 'Plus Jakarta Sans', sans-serif; }
+.settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.settings-grid label, .key-field label { display: flex; flex-direction: column; gap: 7px; color: var(--muted); font-size: .78rem; font-weight: 700; }
+.key-field { grid-column: 1 / -1; }
+.key-row { display: flex; gap: 8px; }
+.key-row input { flex: 1; }
+.small-button, .clear-button { padding: 0 13px; white-space: nowrap; font-size: .78rem; }
+.clear-button { color: var(--ink); border: 1px solid var(--line); background: #f5f6fb; }
+.status { min-height: 20px; margin: 12px 0 0; color: var(--muted); font-size: .78rem; }
+.status.error { color: #c13856; }.status.success { color: #138a68; }
+.hidden { display: none !important; }
+@media (max-width: 700px) { .response-card { top: 52%; width: calc(100% - 24px); min-height: 310px; }.prompt-bar { right: 12px; bottom: 12px; left: 12px; flex-direction: column; }.send-button { min-height: 45px; }.settings-panel { top: 10px; right: 10px; left: 10px; padding: 13px 15px; }.settings-grid { grid-template-columns: 1fr; gap: 9px; }.key-field { grid-column: auto; }.key-row { flex-wrap: wrap; }.key-row input { flex-basis: 100%; min-height: 42px; }.key-row button { min-height: 40px; flex: 1; }.settings-title { flex-direction: column; gap: 4px; }.settings-title small { display: none; } }

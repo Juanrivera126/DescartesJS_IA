@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Laboratorio CAS Avanzado: Análisis Dual y Áreas</title>
+    <script type="text/javascript" src="lib/descartes-min.js" charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/algebrite/dist/algebrite.bundle-for-browser.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+</head>
+
+<body style="padding:0; margin:0; background:#f1f5f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+    <div align="center" style="position: relative; margin-top: 10px;">
+        <ajs name="Descartes" code="Descartes" width="1000" height="720">
+            <param name="tamaño" value="1000x720">
+            <param name="decimal_symbol" value=".">
+            <param name="expand" value="fit">
+            <param name="Versión" value="5.5">
+            <param name="Idioma" value="español">
+            <param name="Botones" value="créditos=no config=no inicio=no limpiar=no">
+
+            <!-- ESPACIOS -->
+            <param name="E_01"
+                value="tipo='R2' id='Panel' x='0' y='80' ancho='450' alto='640' fondo='ffffff' ejes='no' red='no' red10='no' números='no' ">
+            <param name="E_02"
+                value="tipo='R2' id='Header' ancho='100%' alto='80' fondo='1e293b' ejes='no' red='no' red10='no' números='no' ">
+            <param name="E_03"
+                value="tipo='R2' id='Graf' x='450' y='80' ancho='550' alto='640' escala='40' red='eeeeee' red10='dcdcdc' ejes='404040' números='sí' border_width='2' border_color='cbd5e1' ">
+
+            <!-- CONTROLES -->
+            <param name="C_01"
+                value="id='txt_expr' tipo='texto' región='interior' espacio='Panel' expresión='(20,70,410,50)' texto='(x-1)*(x+2)' fuente puntos='20' ">
+
+            <!-- BOTONES IA/CAS -->
+            <param name="C_10"
+                value="id='btn_sim' interfaz='botón' tipo='numérico' región='interior' espacio='Panel' nombre='Simplificar' expresión='(20,135,200,40)' color='ffffff' color-int='2563eb' negrita='sí' fuente puntos='15' acción='calcular' parámetro='v_op=&squot;simplify&squot;;js_cas()' extra_style='overColor=1d4ed8|borderRadius=8' ">
+            <param name="C_11"
+                value="id='btn_fac' interfaz='botón' tipo='numérico' región='interior' espacio='Panel' nombre='Factorizar' expresión='(230,135,200,40)' color='ffffff' color-int='10b981' negrita='sí' fuente puntos='15' acción='calcular' parámetro='v_op=&squot;factor&squot;;js_cas()' extra_style='overColor=059669|borderRadius=8' ">
+            <param name="C_12"
+                value="id='btn_der' interfaz='botón' tipo='numérico' región='interior' espacio='Panel' nombre='Derivada' expresión='(20,185,200,40)' color='ffffff' color-int='6d28d9' negrita='sí' fuente puntos='15' acción='calcular' parámetro='v_op=&squot;derivative&squot;;js_cas()' extra_style='overColor=4c1d95|borderRadius=8' ">
+            <param name="C_13"
+                value="id='btn_int' interfaz='botón' región='interior' espacio='Panel' nombre='Integral' expresión='(230,185,200,40)' color='ffffff' color-int='e11d48' negrita='sí' fuente puntos='15' acción='calcular' parámetro='v_op=&squot;integral&squot;;js_cas()' extra_style='overColor=be123c|borderRadius=8' ">
+
+            <!-- COMPARATIVA -->
+            <param name="C_20"
+                value="id='chk_dual' tipo='numérico' interfaz='checkbox' región='interior' espacio='Panel' nombre='Ver ambas gráficas' expresión='(20,240,250,30)' fuente puntos='14' fijo='sí' ">
+
+            <!-- INTEGRAL DEFINIDA -->
+            <param name="C_30"
+                value="id='lim_a' tipo='numérico' interfaz='pulsador' región='interior' espacio='Panel' nombre='a' expresión='(20,530,150,40)' valor='-1' incremento='0.1' visible='sí' ">
+            <param name="C_31"
+                value="id='lim_b' tipo='numérico' interfaz='pulsador' región='interior' espacio='Panel' nombre='b' expresión='(180,530,150,40)' valor='2' incremento='0.1' visible='sí' ">
+            <param name="C_32"
+                value="id='btn_area' interfaz='botón' región='interior' espacio='Panel' nombre='Area ∫' expresión='(340,530,90,40)' color='ffffff' color-int='f59e0b' negrita='sí' fuente puntos='14' acción='calcular' parámetro='js_area()' extra_style='overColor=d97706|borderRadius=8' ">
+
+            <!-- ALGORITMOS -->
+            <param name="A_01"
+                value="id='INICIO' algoritmo='sí' evaluar='una-sola-vez' hacer='v_res_raw=&squot;&squot;;v_area_res=&squot;&squot;;v_area_active=0;' ">
+            <param name="A_02" value="id='f(x)' expresión='_Eval_(txt_expr)' ">
+            <param name="A_03" value="id='g(x)' expresión='(v_res_raw!=&squot;&squot;)?_Eval_(v_res_raw):f(x)' ">
+
+            <!-- DIBUJOS PANEL -->
+            <param name="G_01"
+                value="espacio='Header' tipo='texto' color='ffffff' expresión='(500,42)' texto='LABORATORIO CAS: ANÁLISIS DUAL Y ÁREAS' negrita='sí' fuente puntos='24' align='a_center' anchor='a_center_center' coord_abs='sí' ">
+            <param name="G_10"
+                value="espacio='Panel' tipo='texto' color='64748b' expresión='(20,45)' texto='Introduce tu función f(x):' fuente puntos='14' negrita='sí' ">
+            <param name="G_11"
+                value="espacio='Panel' tipo='rectángulo' color='e2e8f0' expresión='(20,280,410,230)' borde='2' relleno='f8fafc' border_radius='15' ">
+            <param name="G_13"
+                value="espacio='Panel' tipo='texto' color='64748b' expresión='(40,480)' texto='Simbólico (Texto): [v_res_raw]' ancho='370' fuente puntos='11' ">
+            <param name="G_14"
+                value="espacio='Panel' tipo='texto' color='64748b' expresión='(20,585)' texto='Resultado Area (a a b): [v_area_res]' fuente puntos='13' negrita='sí' ">
+
+            <!-- DIBUJOS GRÁFICA -->
+            <param name="G_20"
+                value="espacio='Graf' tipo='ecuación' color='94a3b8' dibujar-si='chk_dual' expresión='y=f(x)' ancho='1' ">
+            <param name="G_21" value="espacio='Graf' tipo='ecuación' color='2563eb' expresión='y=g(x)' ancho='3' ">
+
+            <!-- SOMBREADO ÁREA (Inecuación robusta) -->
+            <param name="G_30"
+                value="espacio='Graf' tipo='ecuación' color='ff7e0030' expresión='(x>min(lim_a,lim_b))&&(x<max(lim_a,lim_b))&&((y>0)?(y<f(x)):(y>f(x)))' relleno='ff7e0030' dibujar-si='v_area_active' ">
+            <param name="G_31"
+                value="espacio='Graf' tipo='punto' color='f59e0b' expresión='(lim_a,0)' texto='a' fuente puntos='14' fijo='sí' ">
+            <param name="G_32"
+                value="espacio='Graf' tipo='punto' color='f59e0b' expresión='(lim_b,0)' texto='b' fuente puntos='14' fijo='sí' ">
+        </ajs>
+
+        <!-- Capa LaTeX flotante -->
+        <div id="latex-container"
+            style="position: absolute; top: 380px; left: 225px; transform: translateX(-50%); width: 380px; height: 180px; display: flex; align-items: center; justify-content: center; pointer-events: none; font-size: 1.7em; color: #1e293b;">
+            <div id="math-field" style="max-width: 100%; word-break: break-all;"></div>
+        </div>
+    </div>
+
+    <script>
+        function ejecutarCAS(applet) {
+            const expresion = applet.evaluator.getVariable("txt_expr");
+            const operacion = applet.evaluator.getVariable("v_op");
+            const mathField = document.getElementById('math-field');
+
+            applet.evaluator.setVariable("v_area_active", 0); // Reset area on new op
+            applet.evaluator.setVariable("v_area_res", "");
+
+            try {
+                let comando = "";
+                if (operacion === "simplify") comando = `simplify(${expresion})`;
+                else if (operacion === "factor") comando = `factor(${expresion})`;
+                else if (operacion === "derivative") comando = `d(${expresion}, x)`;
+                else if (operacion === "integral") comando = `integral(${expresion}, x)`;
+
+                const rawResult = Algebrite.run(comando);
+                applet.evaluator.setVariable("v_res_raw", rawResult.toString());
+                const latexResult = Algebrite.run(`printlatex(${comando})`);
+                katex.render(latexResult, mathField, { throwOnError: false, displayMode: true });
+
+            } catch (e) {
+                mathField.innerHTML = "<span style='color:red; font-size: 0.5em;'>Formato no soportado</span>";
+            }
+            applet.update();
+        }
+
+        function calcularArea(applet) {
+            const expresion = applet.evaluator.getVariable("txt_expr");
+            const a = applet.evaluator.getVariable("lim_a");
+            const b = applet.evaluator.getVariable("lim_b");
+
+            try {
+                const integral = `integral(${expresion}, x)`;
+                const areaExpr = `( (eval(${integral}, x, ${b})) - (eval(${integral}, x, ${a})) )`;
+                const resultadoArea = Algebrite.run(`float(${areaExpr})`);
+
+                applet.evaluator.setVariable("v_area_res", resultadoArea.toString());
+                applet.evaluator.setVariable("v_area_active", 1);
+            } catch (e) {
+                applet.evaluator.setVariable("v_area_res", "Err");
+            }
+            applet.update();
+        }
+
+        window.addEventListener("descartesReady", function (evt) {
+            const app = evt.detail;
+            app.evaluator.setFunction("js_cas", () => { ejecutarCAS(app); return 0; });
+            app.evaluator.setFunction("js_area", () => { calcularArea(app); return 0; });
+        });
+    </script>
+</body>
+
+</html>

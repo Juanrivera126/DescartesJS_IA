@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blueprint Collage AI</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f5;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Layout Principal */
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: clamp(15px, 2.5vw, 30px);
+            padding: 15px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            flex: 1;
+        }
+
+        /* --- Panel de Controles --- */
+        .controls-panel {
+            background: white;
+            padding: 16px 18px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+
+        .controls-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .controls-panel::-webkit-scrollbar-track {
+            background: #f1f3f5;
+            border-radius: 4px;
+        }
+        .controls-panel::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .controls-panel::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .controls-panel h1 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.84rem;
+            color: #444;
+        }
+
+        select, input[type="text"], input[type="password"] {
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #fff;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        /* Botones */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .btn {
+            border: none;
+            color: white;
+            padding: 9px 14px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14.5px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: transform 0.2s, background-color 0.3s;
+            font-weight: 600;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-generate {
+            background-color: #2c3e50;
+        }
+        .btn-generate:hover {
+            background-color: #34495e;
+        }
+
+        .btn-download {
+            background-color: #4CAF50;
+        }
+        .btn-download:hover {
+            background-color: #45a049;
+        }
+
+        .btn-grid {
+            background-color: #7b5ea7;
+        }
+        .btn-grid:hover {
+            background-color: #6a4d94;
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- Área de Imagen --- */
+        .image-wrapper {
+            position: relative;
+            width: clamp(280px, 40vw, 360px);
+            aspect-ratio: 3 / 4;
+            max-height: 75vh;
+            background-color: #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: #fff;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+
+        /* Contador y Botón Borrar */
+        .counter-msg {
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+            margin: 5px 0;
+            font-weight: 600;
+            background: #f0f4f8;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .btn-delete {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: none;
+            z-index: 15;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+
+        /* Gestión de API Key (BYOP) */
+        .api-key-container {
+            border: 1px dashed #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8fbff;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .api-key-container label {
+            font-size: 0.8rem;
+            color: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .api-key-inputs {
+            display: flex;
+            gap: 8px;
+        }
+
+        #apiKeyInput {
+            flex: 1;
+            padding: 8px;
+            font-size: 0.85rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn-auth {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .btn-auth:hover {
+            background-color: #1a252f;
+        }
+
+        .api-key-status {
+            font-size: 0.75rem;
+            color: #27ae60;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            padding: 18px 20px;
+            font-size: 0.82rem;
+            color: rgba(44, 62, 80, 0.55);
+            letter-spacing: 0.3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .controls-panel {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <!-- Panel de Configuración -->
+        <aside class="controls-panel">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; width: 100%;">
+                <img src="gifanimadoRedProyecto.gif" alt="Logo" style="height: 40px; width: auto; max-width: 120px; object-fit: contain; display: block;">
+                <h1 style="margin: 0; font-size: 1.35rem; color: #2c3e50; white-space: nowrap;">Blueprint Collage AI</h1>
+            </div>
+
+            <!-- Selector de Proveedores y API Key -->
+            <div class="form-group">
+                <label for="provider-select" id="provider-label">🔗 Proveedor de IA:</label>
+                <select id="provider-select" onchange="switchProvider(this.value)">
+                    <option value="free">Red Descartes</option>
+                    <option value="pollinations" selected>Pollinations</option>
+                    <option value="openrouter">OpenRouter</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="provider-key-field">
+                <label for="api-key" id="key-label">🔑 API Key (obligatoria):</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="password" id="api-key" placeholder="plln_sk_..." style="flex: 1;" oninput="saveCurrentKey()">
+                    <button type="button" id="validate-key-btn" class="btn-auth" onclick="validateProviderKey()" style="padding: 8px 12px; font-size: 0.85rem; white-space: nowrap;">Validar</button>
+                    <button type="button" id="clear-key-btn" class="btn-auth" onclick="clearProviderKey()" style="padding: 8px 12px; font-size: 0.85rem; background: #c0392b; white-space: nowrap;">Olvidar</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="charSelect">1. Personaje</label>
+                <select id="charSelect">
+                    <option value="vintage pinup outfit" selected>Mujer Pinup Vintage (Original)</option>
+                    <option value="blonde woman in retro dress">Mujer Rubia</option>
+                    <option value="latino man in suspenders">Hombre Latino</option>
+                    <option value="korean woman in hanbok style">Mujer Coreana</option>
+                    <option value="african american man in jazz suit">Hombre Afroamericano</option>
+                    <option value="redhead woman mechanic">Mujer Pelirroja Mecánica</option>
+                    <option value="bearded hipster barista">Hipster con Barba</option>
+                    <option value="japanese samurai warrior">Samurái Japonés</option>
+                    <option value="victorian lady">Dama Victoriana</option>
+                    <option value="cyberpunk girl with neon details">Chica Cyberpunk</option>
+                    <option value="distinguished older gentleman">Caballero Mayor</option>
+                    <option value="punk rocker with mohawk">Punk Rocker</option>
+                    <option value="business woman in suit">Mujer de Negocios</option>
+                    <option value="surfer dude">Surfista</option>
+                    <option value="medieval knight armor">Caballero Medieval</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="animalSelect">2. Animal</label>
+                <select id="animalSelect" onchange="toggleCustomAnimal()">
+                    <option value="dachshund dog" selected>Perro Salchicha (Original)</option>
+                    <option value="golden retriever">Golden Retriever</option>
+                    <option value="siamese cat">Gato Siamés</option>
+                    <option value="french bulldog">Bulldog Francés</option>
+                    <option value="colorful parrot">Loro</option>
+                    <option value="cute hamster">Hámster</option>
+                    <option value="majestic horse">Caballo</option>
+                    <option value="white rabbit">Conejo Blanco</option>
+                    <option value="green iguana">Iguana</option>
+                    <option value="red fox">Zorro Rojo</option>
+                    <option value="custom">-- Personalizado --</option>
+                </select>
+                <input type="text" id="customAnimalInput" class="hidden" placeholder="Escribe tu animal (ej: Dragón)">
+            </div>
+
+            <div class="form-group">
+                <label for="envSelect">3. Ambiente</label>
+                <select id="envSelect">
+                    <option value="simple technical background" selected>Neutro (Original)</option>
+                    <option value="vintage garden">Jardín Vintage</option>
+                    <option value="cozy cafe interior">Cafetería Acogedora</option>
+                    <option value="steampunk laboratory">Laboratorio Steampunk</option>
+                    <option value="neon city street">Calle de Ciudad Neón</option>
+                    <option value="beach sunset">Atardecer en la Playa</option>
+                    <option value="old library with books">Biblioteca Antigua</option>
+                    <option value="space station interior">Estación Espacial</option>
+                    <option value="forest glade">Claro del Bosque</option>
+                    <option value="art deco bar">Bar Art Déco</option>
+                    <option value="garage workshop">Taller Mecánico</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="image-model-field">
+                <label for="image-model-select" id="image-model-label">4. 🖌️ Modelo AI:</label>
+                <select id="image-model-select">
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-generate" id="btnGenerate" onclick="startGeneration()" style="padding: 10px 14px; font-size: 0.95rem;">Generar Nueva</button>
+                <p id="imageCounter" class="counter-msg" style="margin: 2px 0; padding: 4px; font-size: 0.8rem;">Imágenes guardadas: 0</p>
+                <div style="display: flex; gap: 8px; width: 100%;">
+                    <button class="btn btn-download" id="btnDownload" onclick="downloadImage()" style="flex: 1; padding: 9px 6px; font-size: 0.82rem;">Descargar imagen</button>
+                    <button class="btn btn-grid" id="btnGrid" onclick="downloadGrid()" style="flex: 1; padding: 9px 6px; font-size: 0.82rem;">Descargar grilla</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Visualización -->
+        <main class="image-wrapper">
+            <button class="btn-delete" id="btnDelete" onclick="deleteCurrentImage()" title="Eliminar del collage">&times;</button>
+            <img id="mainImage" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Generando...">
+            
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner"></div>
+                <p>Diseñando plano...</p>
+            </div>
+        </main>
+
+    </div>
+
+    <footer class="app-footer">Diseñado por Juan Guillermo Rivera Berrío con tecnología Gemini 3 y asistencia Antigravity</footer>
+
+    <script>
+        const GENERATE_URL = "https://enter.pollinations.ai/api/generate/image/";
+        const IMG_WIDTH = 768;
+        const IMG_HEIGHT = 1024;
+        const generatedImages = [];
+
+        const PROVIDER_CONFIGS = {
+            free: { name: 'Red Descartes', placeholder: '', keyUrl: '' },
+            pollinations: { name: 'Pollinations', placeholder: 'plln_sk_...', keyUrl: 'https://enter.pollinations.ai/authorize' },
+            openrouter: { name: 'OpenRouter', placeholder: 'sk-or-...', keyUrl: 'https://openrouter.ai/keys' }
+        };
+
+        const PROVIDER_VALIDATION_URLS = {
+            pollinations: 'https://gen.pollinations.ai/account/key',
+            openrouter: 'https://openrouter.ai/api/v1/key'
+        };
+
+        const MODEL_CATALOGS = {
+            free: {
+                imageLabel: 'Modelo de imagen · Red Descartes',
+                defaultImage: 'zimage',
+                images: [
+                    { value: 'zimage', label: 'zimage (Rápido)' },
+                    { value: 'flux', label: 'flux (Detallado)' },
+                    { value: 'gptimage', label: 'GPT image 1 (Creativo)' },
+                    { value: 'klein', label: 'klein (Realista)' },
+                    { value: 'black-forest-labs/flux-3-image-klein', label: 'Flux 3 Image (Nuevo)' },
+                    { value: 'recraft/recraft-v4.1-flash', label: 'Recraft 4.1' }
+                ]
+            },
+            pollinations: {
+                imageLabel: 'Modelo de imagen · Pollinations',
+                defaultImage: 'zimage',
+                images: [
+                    { value: 'zimage', label: 'zimage (Rápido / Muy permisivo)' },
+                    { value: 'krea/krea-2-medium', label: 'krea/krea-2-medium (Artístico)' },
+                    { value: 'black-forest-labs/flux.2-pro', label: 'flux.2-pro (Alta fidelidad)' },
+                    { value: 'x-ai/grok-imagine-image', label: 'grok-imagine-image (Grok)' },
+                    { value: 'ideogram-ai/ideogram-v4-turbo', label: 'ideogram-v4-turbo' },
+                    { value: 'alibaba/wan-2.7-image-pro', label: 'wan-2.7-image-pro' },
+                    { value: 'openai/gpt-image-2.5-flare', label: 'gpt-image-2.5-flare (OpenAI)' },
+                    { value: 'openai/gpt-image-2.5-sunburst', label: 'gpt-image-2.5-sunburst (OpenAI)' },
+                    { value: 'klein', label: 'klein (Realista)' },
+                    { value: 'gptimage', label: 'gptimage (Creativo)' }
+                ]
+            },
+            openrouter: {
+                imageLabel: 'Modelo de imagen · OpenRouter',
+                defaultImage: 'google/gemini-2.5-flash-image',
+                images: [
+                    { value: 'google/gemini-2.5-flash-image', label: 'Gemini 2.5 Flash Image', pureImage: false },
+                    { value: 'openai/gpt-5-image-mini', label: 'GPT Image mini', pureImage: false },
+                    { value: 'google/gemini-3.1-flash-image-preview', label: 'Gemini 3.1 Flash Image', pureImage: false },
+                    { value: 'openai/gpt-5.4-image-2', label: 'GPT Image 2', pureImage: false },
+                    { value: 'black-forest-labs/flux.2-klein-4b', label: 'Klein', pureImage: true },
+                    { value: 'microsoft/mai-image-2.5', label: 'MAI Image 2.5', pureImage: true },
+                    { value: 'x-ai/grok-imagine-image-quality', label: 'Grok xAI', pureImage: true },
+                    { value: 'recraft/recraft-v4.1-vector', label: 'Recraft V4.1', pureImage: true },
+                    { value: 'bytedance-seed/seedream-4.5', label: 'Seedream 4.5', pureImage: true },
+                    { value: 'black-forest-labs/flux.2-flex', label: 'Flux.2 Flex', pureImage: true }
+                ]
+            }
+        };
+
+        let state = {
+            provider: localStorage.getItem('preferred_provider') || 'pollinations'
+        };
+
+        const keyStorageName = (provider) => `${provider}_api_key`;
+
+        function getProviderKey(provider = state.provider) {
+            return localStorage.getItem(keyStorageName(provider)) || '';
+        }
+
+        function setProviderKey(provider = state.provider, key) {
+            if (key) {
+                localStorage.setItem(keyStorageName(provider), key);
+            } else {
+                localStorage.removeItem(keyStorageName(provider));
+            }
+        }
+
+        function saveCurrentKey() {
+            const key = document.getElementById('api-key').value.trim();
+            setProviderKey(state.provider, key);
+        }
+
+        function updateProviderKeyField() {
+            const keyField = document.getElementById('provider-key-field');
+            const keyInput = document.getElementById('api-key');
+            const keyLabel = document.getElementById('key-label');
+            const validateBtn = document.getElementById('validate-key-btn');
+            const clearBtn = document.getElementById('clear-key-btn');
+            const provider = PROVIDER_CONFIGS[state.provider];
+            if (!provider) return;
+
+            const required = state.provider !== 'free';
+            if (keyField) keyField.classList.toggle('hidden', !required);
+            if (keyInput) {
+                keyInput.required = required;
+                keyInput.value = required ? getProviderKey(state.provider) : '';
+                keyInput.placeholder = provider.placeholder || 'API Key...';
+            }
+            if (keyLabel) {
+                keyLabel.textContent = `🔑 API Key de ${provider.name} ${required ? '(obligatoria)' : '(opcional)'}`;
+            }
+            if (validateBtn) validateBtn.classList.toggle('hidden', !required);
+            if (clearBtn) clearBtn.classList.toggle('hidden', !required);
+        }
+
+        function switchProvider(provider) {
+            if (!PROVIDER_CONFIGS[provider]) return;
+            const currentKey = document.getElementById('api-key')?.value.trim();
+            if (currentKey) {
+                setProviderKey(state.provider, currentKey);
+            }
+            state.provider = provider;
+            localStorage.setItem('preferred_provider', provider);
+            const provSelect = document.getElementById('provider-select');
+            if (provSelect) provSelect.value = provider;
+            updateProviderKeyField();
+            populateProviderModels(provider);
+        }
+
+        function populateProviderModels(provider = state.provider) {
+            const catalog = MODEL_CATALOGS[provider] || MODEL_CATALOGS.pollinations;
+            const select = document.getElementById('image-model-select');
+            const label = document.getElementById('image-model-label');
+            if (!select) return;
+
+            select.innerHTML = '';
+            catalog.images.forEach(model => {
+                const opt = document.createElement('option');
+                opt.value = model.value;
+                opt.textContent = model.label;
+                select.appendChild(opt);
+            });
+            select.value = catalog.defaultImage || catalog.images[0].value;
+            if (label) label.textContent = `4. 🖌️ ${catalog.imageLabel}`;
+        }
+
+        async function validateProviderKey() {
+            const provider = state.provider;
+            const key = document.getElementById('api-key').value.trim();
+
+            if (provider === 'free') {
+                alert('Red Descartes no requiere API key.');
+                return;
+            }
+
+            if (!key) {
+                alert(`Por favor, introduce la API key de ${PROVIDER_CONFIGS[provider].name}.`);
+                document.getElementById('api-key').focus();
+                return;
+            }
+
+            const button = document.getElementById('validate-key-btn');
+            button.disabled = true;
+            const orig = button.textContent;
+            button.textContent = 'Validando...';
+
+            try {
+                // Limpiar posibles espacios, comillas o prefijo Bearer
+                let cleanKey = key.trim();
+                if (cleanKey.toLowerCase().startsWith('bearer ')) cleanKey = cleanKey.slice(7).trim();
+                cleanKey = cleanKey.replace(/^["']|["']$/g, '').trim();
+                if (cleanKey !== key) {
+                    key = cleanKey;
+                    if (document.getElementById('apiKeyInput')) document.getElementById('apiKeyInput').value = key;
+                }
+
+                let url, headers = { 'Authorization': `Bearer ${key}` };
+                if (provider === 'pollinations') {
+                    // Endpoint oficial de Pollinations para validar API Keys
+                    url = 'https://gen.pollinations.ai/account/key';
+                } else {
+                    // OpenRouter
+                    url = 'https://openrouter.ai/api/v1/key';
+                    headers['HTTP-Referer'] = location.origin || 'http://localhost';
+                    headers['X-Title'] = 'Herramienta Educativa';
+                }
+
+                const response = await fetch(url, { headers });
+                if (!response.ok) {
+                    if (provider === 'openrouter' && response.status === 401) {
+                        if (!key.startsWith('sk-or-')) {
+                            throw new Error('La clave introducida no corresponde a OpenRouter (las claves de OpenRouter comienzan por "sk-or-v1-"). Si estás usando una clave de Pollinations ("plln_sk_..."), selecciona el proveedor Pollinations.');
+                        }
+                        throw new Error('La clave de OpenRouter no es válida o ha caducado. Obtén una clave en https://openrouter.ai/keys.');
+                    }
+                    if (provider === 'pollinations' && response.status === 401) {
+                        throw new Error('La clave de Pollinations no es válida. Obtén una clave en https://enter.pollinations.ai/keys.');
+                    }
+                    const errText = await response.text().catch(() => '');
+                    throw new Error(`HTTP ${response.status}${errText ? ': ' + errText.slice(0, 100) : ''}`);
+                }
+                setProviderKey(provider, key);
+                alert(`✓ API key de ${PROVIDER_CONFIGS[provider].name} válida.`);
+            } catch (error) {
+                alert(`✗ No se pudo validar la API key: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.textContent = orig;
+            }
+        }
+
+        function clearProviderKey() {
+            const provider = state.provider;
+            if (provider === 'free') {
+                alert('Red Descartes no utiliza API key en memoria.');
+                return;
+            }
+            localStorage.removeItem(keyStorageName(provider));
+            const input = document.getElementById('api-key');
+            if (input) input.value = '';
+            alert(`API key de ${PROVIDER_CONFIGS[provider].name} eliminada de la memoria caché.`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const hashParams = new URLSearchParams(window.location.hash.slice(1));
+            const apiKeyFromHash = hashParams.get('api_key');
+            if (apiKeyFromHash) {
+                setProviderKey('pollinations', apiKeyFromHash);
+                window.history.replaceState(null, null, window.location.pathname + window.location.search);
+                alert('¡API Key vinculada con éxito!');
+            }
+
+            const initialProvider = localStorage.getItem('preferred_provider') || 'pollinations';
+            const provSelect = document.getElementById('provider-select');
+            if (provSelect) provSelect.value = initialProvider;
+            state.provider = initialProvider;
+            updateProviderKeyField();
+            populateProviderModels(initialProvider);
+
+            // Generar la imagen inicial
+            startGeneration();
+        });
+
+        function toggleCustomAnimal() {
+            const select = document.getElementById('animalSelect');
+            const input = document.getElementById('customAnimalInput');
+            if (select.value === 'custom') {
+                input.classList.remove('hidden');
+                input.focus();
+            } else {
+                input.classList.add('hidden');
+            }
+        }
+
+        // Generar imagen con Red Descartes
+        const generateImageFromRedDescartes = async (prompt, seed, model) => {
+            const allowedFree = ['zimage', 'flux', 'klein', 'black-forest-labs/flux-3-image-klein', 'recraft/recraft-v4.1-flash'];
+            const candidateModel = model || document.getElementById('image-model-select')?.value || 'zimage';
+            const selectedModel = allowedFree.includes(candidateModel) ? candidateModel : 'zimage';
+            const response = await fetch('https://node.proyectodescartes.org/api/ia/image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    model: selectedModel,
+                    seed: seed,
+                    width: IMG_WIDTH,
+                    height: IMG_HEIGHT
+                })
+            });
+            if (!response.ok) {
+                const errJson = await response.json().catch(() => null);
+                throw new Error(errJson?.error || `HTTP ${response.status}`);
+            }
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        };
+
+        // Generar imagen con Pollinations
+        const generateImageFromPollinations = async (prompt, seed, model) => {
+            const apiKey = document.getElementById('api-key')?.value.trim() || getProviderKey('pollinations');
+            const selectedModel = model || document.getElementById('image-model-select')?.value || 'zimage';
+            let url = apiKey
+                ? `${GENERATE_URL}${encodeURIComponent(prompt)}?key=${apiKey}&model=${encodeURIComponent(selectedModel)}&seed=${seed}&width=${IMG_WIDTH}&height=${IMG_HEIGHT}&nologo=true`
+                : `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${encodeURIComponent(selectedModel)}&seed=${seed}&width=${IMG_WIDTH}&height=${IMG_HEIGHT}&nologo=true`;
+            let response = await fetch(url);
+            if (!response.ok && apiKey && response.status === 401) {
+                url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${encodeURIComponent(selectedModel)}&seed=${seed}&width=${IMG_WIDTH}&height=${IMG_HEIGHT}&nologo=true`;
+                response = await fetch(url);
+            }
+            if (!response.ok) throw new Error(`Error de Pollinations: ${response.status}`);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        };
+
+        // Generar imagen con OpenRouter
+        const generateImageFromOpenRouter = async (prompt, seed, model) => {
+            const apiKey = document.getElementById('api-key')?.value.trim() || getProviderKey('openrouter');
+            if (!apiKey) throw new Error('OpenRouter requiere API key para generar imágenes');
+
+            const selectedModel = model || document.getElementById('image-model-select')?.value || 'google/gemini-2.5-flash-image';
+            const imageModels = MODEL_CATALOGS.openrouter.images;
+            const config = imageModels.find(item => item.value === selectedModel);
+            const enhancedPrompt = `${prompt}. High quality, architectural technical blueprint drawing, clean composition, 8k.`;
+
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'HTTP-Referer': location.origin || 'http://localhost',
+                    'X-Title': 'Blueprint Collage AI'
+                },
+                body: JSON.stringify({
+                    model: selectedModel,
+                    modalities: config?.pureImage ? ['image'] : ['image', 'text'],
+                    messages: [{ role: 'user', content: enhancedPrompt }],
+                    ...(!config?.pureImage ? { image_config: { aspect_ratio: '3:4' } } : {})
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                if (response.status === 402) {
+                    throw new Error('OpenRouter requiere al menos $1.00 USD de saldo en tu cuenta para generar imágenes (Error 402: Payment Required).');
+                }
+                throw new Error(`OpenRouter error (${response.status}): ${errText.slice(0, 100)}`);
+            }
+            const payload = await response.json();
+            const message = payload.choices?.[0]?.message;
+            const image = message?.images?.[0]?.image_url?.url || 
+                          message?.images?.[0]?.imageUrl?.url ||
+                          (Array.isArray(message?.content) ? message.content.find(part => part.type === 'image_url')?.image_url?.url : null);
+            if (!image) throw new Error('OpenRouter no devolvió una imagen');
+            if (image.startsWith('data:')) return image;
+
+            const imgRes = await fetch(image);
+            if (!imgRes.ok) throw new Error('No se pudo descargar imagen de OpenRouter');
+            const blob = await imgRes.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        };
+
+        // Función unificada
+        const generateImage = async (prompt, seed) => {
+            const model = document.getElementById('image-model-select')?.value;
+            if (state.provider === 'free') {
+                return await generateImageFromRedDescartes(prompt, seed, model);
+            } else if (state.provider === 'openrouter') {
+                return await generateImageFromOpenRouter(prompt, seed, model);
+            } else {
+                return await generateImageFromPollinations(prompt, seed, model);
+            }
+        };
+
+        async function startGeneration() {
+            saveCurrentKey();
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const imgElement = document.getElementById('mainImage');
+            const btnGenerate = document.getElementById('btnGenerate');
+            const btnDownload = document.getElementById('btnDownload');
+
+            const character = document.getElementById('charSelect').value;
+            const environment = document.getElementById('envSelect').value;
+            const model = document.getElementById('image-model-select')?.value || 'zimage';
+            
+            let animal = document.getElementById('animalSelect').value;
+            if (animal === 'custom') {
+                animal = document.getElementById('customAnimalInput').value || "mysterious creature";
+            }
+
+            const prompt = `Expressionism. blueprint of a ${character} with a ${animal}, set in a ${environment}, award-winning, highly detailed, intricate, cinematic, trending on artstation, 8k resolution, technical drawing style`;
+
+            loadingOverlay.style.display = 'flex';
+            loadingOverlay.innerHTML = '<div class="spinner"></div><p>Generando plano...</p>';
+            btnGenerate.disabled = true;
+            btnDownload.disabled = true;
+
+            const seed = Math.floor(Math.random() * 1000000);
+
+            try {
+                const base64Image = await generateImage(prompt, seed);
+                imgElement.src = base64Image;
+                imgElement.alt = `Blueprint: ${character} + ${animal} (${model})`;
+
+                generatedImages.push(base64Image);
+                updateCounter();
+            } catch (error) {
+                console.error("Error:", error);
+                loadingOverlay.innerHTML = `<p class="error-msg">Error al generar la imagen: ${error.message}<br>Verifica tu API Key o prueba otro modelo o proveedor.</p><button class="btn btn-generate" onclick="startGeneration()">Reintentar</button>`;
+                return;
+            } finally {
+                if (!loadingOverlay.querySelector('.error-msg')) {
+                    loadingOverlay.style.display = 'none';
+                }
+                btnGenerate.disabled = false;
+                btnDownload.disabled = false;
+            }
+        }
+
+        function downloadImage() {
+            const imgElement = document.getElementById('mainImage');
+            const src = imgElement.src;
+            if (!src || src.length < 100) return;
+
+            const a = document.createElement('a');
+            a.href = src;
+            a.download = `blueprint_ai_${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function updateCounter() {
+            const counter = document.getElementById('imageCounter');
+            const btnDelete = document.getElementById('btnDelete');
+            const count = generatedImages.length;
+            counter.innerText = `Imágenes guardadas: ${count}`;
+            btnDelete.style.display = count > 0 ? 'flex' : 'none';
+        }
+
+        function deleteCurrentImage() {
+            const imgElement = document.getElementById('mainImage');
+            const currentSrc = imgElement.src;
+            const index = generatedImages.indexOf(currentSrc);
+            if (index > -1) {
+                generatedImages.splice(index, 1);
+            }
+            if (generatedImages.length > 0) {
+                imgElement.src = generatedImages[generatedImages.length - 1];
+            } else {
+                imgElement.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+            }
+            updateCounter();
+        }
+
+        function downloadGrid() {
+            if (generatedImages.length === 0) {
+                alert('No hay imágenes generadas todavía. Genera al menos una imagen primero.');
+                return;
+            }
+
+            const panelsHtml = generatedImages.map((src, i) => `
+                <div class="comic-panel">
+                    <div class="panel-number">${i + 1}</div>
+                    <img src="${src}" alt="Blueprint ${i + 1}">
+                </div>`).join('\n');
+
+            const gridHtml = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blueprint Collage AI - Grilla</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6278 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .comic-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.4);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        .comic-container {
+            max-width: 1400px;
+            width: 100%;
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        .comic-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .comic-panel {
+            position: relative;
+            aspect-ratio: 3 / 4;
+            border: 4px solid #2c3e50;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ddd;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .comic-panel:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        .panel-number {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(45deg, #2c3e50, #4a6278);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            z-index: 2;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+        .comic-panel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            cursor: zoom-in;
+        }
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            z-index: 9999;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox img {
+            max-width: min(900px, 96vw);
+            max-height: 96vh;
+            width: auto;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            cursor: zoom-out;
+        }
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        @media (max-width: 900px) {
+            .comic-grid { grid-template-columns: repeat(2, 1fr); }
+            .comic-title { font-size: 1.8rem; }
+        }
+        @media (max-width: 500px) {
+            .comic-grid { grid-template-columns: 1fr; }
+            body { padding: 1rem; }
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .comic-container { box-shadow: none; max-width: 100%; }
+            .comic-panel { break-inside: avoid; }
+            .lightbox { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="comic-title">Blueprint Collage AI</h1>
+    <div class="comic-container">
+        <div class="comic-grid">
+${panelsHtml}
+        </div>
+    </div>
+    <p class="footer">Generado con Blueprint Collage AI &bull; ${generatedImages.length} imagen(es)<br><span style="font-size:0.8em;opacity:0.75;">Diseñado por Juan Guillermo Rivera Berrío con tecnología Gemini 3 y asistencia Antigravity</span></p>
+    <div class="lightbox" id="lightbox">
+        <img id="lightboxImg" src="" alt="Imagen ampliada">
+    </div>
+    <script>
+        const lb = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lightboxImg');
+        document.querySelectorAll('.comic-panel img').forEach(img => {
+            img.addEventListener('click', () => { lbImg.src = img.src; lb.classList.add('open'); });
+        });
+        lb.addEventListener('click', () => lb.classList.remove('open'));
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('open'); });
+    <\/script>
+</body>
+</html>`;
+
+            const blob = new Blob([gridHtml], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `grilla_blueprints_${Date.now()}.html`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

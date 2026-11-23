@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Red Descartes</title>
+  <link rel="stylesheet" href="chatbot.css">
+  <script src="chatbot.js"></script>
+  <script type="text/javascript" src="lib/descartes-min.js" charset="utf-8"></script>
+</head>
+
+<body>
+  <ajs name="Descartes" code="Descartes" width="1000" height="800">
+    <param name="tamaño" value="1000x800">
+    <param name="decimal_symbol" value=".">
+    <param name="expand" value="fit">
+    <param name="nombre" value="">
+    <param name="Versión" value="5.5">
+    <param name="editable" value="no">
+    <param name="Idioma" value="español">
+    <param name="Botones" value="créditos=no config=no inicio=no limpiar=no filas_norte=0 filas_sur=0 ancho_este=150 ancho_oeste=150 alto=40 ">
+    <param name="E_01" value="tipo='R2' id='E1' ancho='100%' alto='100%' fondo='GradL(1000,0,0,700,stop|0|f09494,stop|0.25|d487ca,stop|0.5|d88de2,stop|0.75|9776e5,stop|1|949ff4)' red='no' red10='no' ejes='no' border_width='3' border_color='GradL(1000,0,0,700,)' border_radius='5' ">
+    <param name="E_02" value="tipo='HTMLIFrame' id='Respuesta' x='160' y='235' ancho='680' alto='360' archivo='respuesta.html' ">
+    <param name="C_01" value="id='provider' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🤖 Proveedor' expresión='(55,105,330,34)' visible='no' opciones='Red Descartes,Pollinations AI,OpenRouter,DeepSeek' label_color='d88de0' label_text_color='111936' fuente puntos='20' ">
+    <param name="C_02" value="id='textModel' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🧠 Modelo de texto' expresión='(430,105,420,34)' visible='no' opciones='OpenAI (GPT),OpenAI Fast,Gemini Fast,Gemini Search,Mistral,Nova Fast,Perplexity Fast,DeepSeek' dibujar-si='provider=0' label_color='ffffff' label_text_color='111936' fuente puntos='20' ">
+    <param name="C_03" value="id='textModel' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🧠 Modelo de texto' expresión='(430,105,420,34)' visible='no' opciones='GPT-5.4 Nano,openai/gpt-5.6-luna,moonshotai/kimi-k2.6,x-ai/grok-4.3,Mistral Small 3.2,Qwen3 Coder,Gemini Flash Lite' dibujar-si='provider=1' label_color='ffffff' label_text_color='111936' fuente puntos='20' ">
+    <param name="C_04" value="id='textModel' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🧠 Modelo de texto' expresión='(430,105,420,34)' visible='no' opciones='DeepSeek V3,DeepSeek V4 Flash,Gemini 2.5 Flash,GPT 5 Mini,Kimi k2.6,Llama 3.3 70B,Minimax M3,Mistral 4 Small,Qwen 3.5 Flash,GLM 4.7 Flash,Enrutador libre' dibujar-si='provider=2' label_color='ffffff' label_text_color='111936' fuente puntos='20' ">
+    <param name="C_05" value="id='textModel' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🧠 Modelo de texto' expresión='(430,105,420,34)' visible='no' opciones='DeepSeek Chat,DeepSeek Reasoner,DeepSeek Flash,DeepSeek V4 Pro' dibujar-si='provider=3' label_color='ffffff' label_text_color='111936' fuente puntos='20' ">
+    <param name="C_06" value="id='apiKey' tipo='numérico' interfaz='campo de texto' solo_texto='sí' región='interior' espacio='E1' expresión='(320,160,500,34)' valor='&squot;&squot;' visible='sí' dibujar-si='provider>0' label_color='ffffff' label_text_color='111936' fuente puntos='16' ">
+    <param name="C_07" value="id='clearApiKey' interfaz='botón' tipo='botón' región='interior' espacio='E1' nombre='🚮' expresión='(835,160,55,34)' color='ffffff' color-int='b91c1c' fuente puntos='18' acción='calcular' parámetro='apiKey=&squot; &squot;' dibujar-si='provider>0' extra_style='overColor=991b1b|borderRadius=8' ">
+    <param name="C_08" value="id='prompt' tipo='texto' espacio='E1' expresión='(55,655,750,85)' fuente puntos='20' ">
+    <param name="C_09" value="id='send' interfaz='botón' tipo='botón' región='interior' espacio='E1' nombre='Enviar' expresión='(825,660,120,35)' color='ffffff' color-int='5965e8' fuente puntos='20' acción='calcular' parámetro='genera()' extra_style='borderRadius=8' ">
+    <param name="C_10" value="id='clearPrompt' interfaz='botón' tipo='botón' región='interior' espacio='E1' nombre='🚮' expresión='(825,705,120,35)' color='ffffff' color-int='b91c1c' fuente puntos='18' acción='calcular' parámetro='prompt=&squot; &squot;' extra_style='overColor=991b1b|borderRadius=8' ">
+    <param name="A_01" value="id='INICIO' algoritmo='sí' evaluar='una-sola-vez' ">
+    <param name="A_02" value="id='CALCULOS' algoritmo='sí' evaluar='siempre' ">
+    <param name="A_03" value="id='genera()' algoritmo='sí' expresión='0' hacer='sendPrompt()' tipo='función' ">
+    <param name="G_01" value="espacio='E1' tipo='texto' color='0051ff' coord_abs='sí' expresión='(500,30)' texto='CHATBOT DescartesJS' ancho='970' fuente puntos='40' align='a_center' anchor='a_center_center' shadowColor='000000' shadowOffsetX='3' shadowOffsetY='2' ">
+    <param name="G_02" value="espacio='E1' tipo='texto' color='ffffff' coord_abs='sí' expresión='(500,70)' texto='Selecciona el proveedor, el modelo y escribe tu solicitud' ancho='800' align='a_center' anchor='a_center_center' ">
+    <param name="G_03" value="espacio='E1' tipo='texto' color='ffaf00' dibujar-si='provider>0' coord_abs='sí' expresión='(180,160)' texto='🔑 API Key' ancho='1' negrita='sí' fuente puntos='22' align='a_left' anchor='a_top_left' shadowColor='000000' shadowOffsetX='3' shadowOffsetY='2' ">
+  </ajs>
+  <main class="app-shell">
+    <section class="scene-shell" aria-label="Escena de Descartes"></section>
+  </main>
+
+
+
+</body>
+</html>

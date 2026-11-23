@@ -1,0 +1,22 @@
+﻿<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Visor DescartesJS</title></head><body style="padding:0;margin:0;background:#eff0f1">
+<script>
+const models=[
+ ['U=2*pi*u;V=pi*v','r*cos(V)*cos(U)','r*cos(V)*sen(U)','(25,0,25)','105'],
+ ['U=2*a*pi*u;V=2*b*pi*v','(R+r*cos(V))*cos(U)','(R+r*cos(V))*sen(U)','r*sen(V)','(25,0,25)','90'],
+ ['U=2*pi*u;V=2*v-1','r*cos(U)','r*sen(U)','h*V','(25,0,25)','100'],
+ ['U=2*pi*u;V=v','h*V*cos(U)','h*V*sen(U)','h*(V-0.5)','(25,0,25)','100'],
+ ['U=0','2*u-1','t*v-1','x^2-y^2','(25,0,25)','95'],
+ ['U=2*pi*u;V=2*v-1','a*sqrt(1+V^2)*cos(U)','a*sqrt(1+V^2)*sen(U)','a*V','(25,0,25)','90'],
+ ['U=4*pi*(u-0.5);V=3*(v-0.5)','V*cos(U)','V*sen(U)','U','(25,0,25)','75'],
+ ['U=2*pi*u;V=2*pi*v','a*(1+sen(U))','b*(1+sen(U))*cos(U)*cos(V)','b*(1+sen(U))*cos(U)*sen(V)','(0,90,0)','95'],
+ ['U=2*pi*u;V=2*pi*v','k*(cos(V))^3*cos(U)','k*(cos(V))^3*sen(U)','k*(sen(V))^3','(30,0,20)','115'],
+ ['U=0','2*u-1','t*v-1','x^3-3*x*y^2','(25,0,25)','105']
+];
+const i=Math.max(0,Math.min(9,Number(new URLSearchParams(location.search).get('surface')||0)));
+const m=models[i];
+const expr=`${m[0]};x=${m[1]};y=${m[2]};z=${m[3]}`;
+const rot=m[4], scale=m[5];
+ document.write(`<ajs name="Descartes" code="Descartes" width="800" height="600"><param name="tamaÃ±o" value="800x600"><param name="decimal_symbol" value="."><param name="expand" value="fit"><param name="nombre" value="Superficie"><param name="VersiÃ³n" value="5.5"><param name="editable" value="sÃ­"><param name="Idioma" value="espaÃ±ol"><param name="Botones" value="crÃ©ditos=no config=no inicio=no limpiar=no filas_norte=0 filas_sur=0 ancho_este=140 ancho_oeste=140 alto=46"><param name="E_01" value="tipo='R2' id='E2' ancho='100%' alto='100%' fondo='000000' red='no' red10='no' ejes='no'"><param name="E_02" value="tipo='R3' R3='sÃ­' id='E1' ancho='100%' alto='100%' escala='${scale}' fondo='ff000000'"><param name="C_01" value="id='ver' tipo='numÃ©rico' interfaz='menÃº' regiÃ³n='sur' espacio='E1' expresiÃ³n='(0,0)' valor='1' visible='sí' opciones='color sÃ³lido[1],color transparente[2],modelo alambre[3]'><param name="C_02" value="id='a' tipo='numÃ©rico' interfaz='pulsador' regiÃ³n='sur' espacio='E1' nombre='a' expresiÃ³n='(0,0,120,40)' valor='1' visible='sí'><param name="C_03" value="id='b' tipo='numÃ©rico' interfaz='pulsador' regiÃ³n='sur' espacio='E1' nombre='b' expresiÃ³n='(0,0,120,40)' valor='1' visible='sí'><param name="C_04" value="id='t' tipo='numÃ©rico' interfaz='pulsador' regiÃ³n='sur' espacio='E1' nombre='t' expresiÃ³n='(0,0,120,40)' valor='1' visible='sí'><param name="C_05" value="id='R' tipo='numÃ©rico' interfaz='pulsador' regiÃ³n='sur' espacio='E1' nombre='R' expresiÃ³n='(0,0,120,40)' valor='2.2' visible='sí'><param name="C_06" value="id='r' tipo='numÃ©rico' interfaz='pulsador' regiÃ³n='sur' espacio='E1' nombre='r' expresiÃ³n='(0,0,120,40)' valor='0.75' visible='sí'><param name="C_07" value="id='k' tipo='numÃ©rico' interfaz='pulsador' regiÃ³n='sur' espacio='E1' nombre='k' expresiÃ³n='(0,0,120,40)' valor='1.3' visible='sí'><param name="A_01" value="id='INICIO' algoritmo='sÃ­' evaluar='una-sola-vez' hacer='pi=3.14159;E1.rot.z=90;;"><param name="A_02" value="id='CALCULOS' algoritmo='sÃ­' evaluar='siempre'><param name="S_01" value="espacio='E1' tipo='superficie' color='ff8e00' color_reverso='00ff00' dibujar-si='ver=1' expresiÃ³n='${expr}' rotfin='${rot}' aristas='70c0c0c0' modelo='luz' Nu='34' Nv='28'><param name="S_02" value="espacio='E1' tipo='superficie' color='7cff8e00' color_reverso='7b00ff00' dibujar-si='ver=2' expresiÃ³n='${expr}' rotfin='${rot}' modelo='metal' Nu='34' Nv='28'><param name="S_03" value="espacio='E1' tipo='superficie' color='eeffaa' color_reverso='eeffaa' dibujar-si='ver=3' expresiÃ³n='${expr}' rotfin='${rot}' modelo='alambre' Nu='34' Nv='28"></ajs>`);
+document.write('<script src="lib/descartes-min.js" charset="utf-8"></scr'+'ipt>');
+</script></body></html>
+

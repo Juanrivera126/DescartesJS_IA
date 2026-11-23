@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>TITULO</title>
+  <script type="text/javascript" src="lib/descartes-min.js" charset="utf-8"></script>
+</head>
+
+<body style="padding:0; margin:0; background:#eff0f1;">
+  <ajs name="Descartes" code="Descartes" width="640" height="600">
+    <param name="tamaño" value="640x600">
+    <param name="decimal_symbol" value=".">
+    <param name="expand" value="fit">
+    <param name="nombre" value="superficie_almohada">
+    <param name="Versión" value="5.5">
+    <param name="editable" value="sí">
+    <param name="Idioma" value="español">
+    <param name="Botones" value="créditos=no config=no inicio=no limpiar=no filas_norte=0 filas_sur=0 ancho_este=150 ancho_oeste=150 alto=45 ">
+    <param name="E_01" value="tipo='R2' id='E2' ancho='100%' alto='100%' O.y='40' fondo='000000' red='no' red10='no' ejes='no' ">
+    <param name="E_02" value="tipo='R3' R3='sí' id='E1' ancho='100%' alto='100%' escala='80' O.y='-20' fondo='ff000000' ">
+    <param name="C_01" value="id='ver' tipo='numérico' interfaz='menú' región='sur' espacio='E1' expresión='(0,0)' valor='1' decimales='0' visible='no' opciones='color sólido [1], color transparente [2], modelo alambre [3]' fuente puntos='20' ">
+    <param name="C_02" value="id='a' tipo='numérico' interfaz='pulsador' región='sur' espacio='E1' nombre='a' expresión='(0,0)' valor='2' visible='sí' label_color='008600' label_text_color='ffffff' fuente puntos='22' ">
+    <param name="C_03" value="id='b' tipo='numérico' interfaz='pulsador' región='sur' espacio='E1' nombre='b' expresión='(0,0)' valor='2' visible='sí' label_color='008600' label_text_color='ffffff' fuente puntos='22' ">
+    <param name="C_04" value="id='t' tipo='numérico' interfaz='pulsador' región='sur' espacio='E1' nombre='t' expresión='(0,0)' valor='1' incr='0.05' min='0' max='1' visible='sí' label_color='008600' label_text_color='ffffff' fuente puntos='22' ">
+    <param name="A_01" value="id='INICIO' algoritmo='sí' evaluar='una-sola-vez' hacer='pi=3.14159' ">
+    <param name="A_02" value="id='CALCULOS' algoritmo='sí' evaluar='siempre' ">
+    <param name="S_01" value="espacio='E1' tipo='superficie' color='ff6e00' color_reverso='00ff00' dibujar-si='ver=1' expresión='U=2*pi*u V=t*pi*v x=a*(1+sin(U)) y=(b*(1+sin(U))*cos(U)*cos(V) z=(b*(1+sin(U))*cos(U)*sin(V)' rotini='(0,90,0)' posini='(0,0,a)' aristas='32c0c0c0' modelo='metal' Nu='28' Nv='28' ">
+    <param name="S_02" value="espacio='E1' tipo='superficie' color='8f00ffff' color_reverso='9300ffff' dibujar-si='ver=2' expresión='U=2*pi*u V=t*pi*v x=a*(1+sin(U)) y=(b*(1+sin(U))*cos(U)*cos(V) z=(b*(1+sin(U))*cos(U)*sin(V)' rotini='(0,90,0)' posini='(0,0,a)' modelo='metal' Nu='28' Nv='28' ">
+    <param name="S_03" value="espacio='E1' tipo='superficie' color='a3eeffaa' color_reverso='d3eeffaa' dibujar-si='ver=3' expresión='U=2*pi*u V=t*pi*v x=a*(1+sin(U)) y=(b*(1+sin(U))*cos(U)*cos(V) z=(b*(1+sin(U))*cos(U)*sin(V)' rotini='(0,90,0)' posini='(0,0,a)' modelo='alambre' Nu='28' Nv='28' ">
+  </ajs>
+
+
+
+</body>
+</html>

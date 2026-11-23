@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Laboratorio Final: Puente DescartesJS ↔ HTML</title>
+  <style>
+    html {
+      overflow-y: auto;
+    }
+
+    body {
+      margin: 0;
+      padding: 10px;
+      background: #f1f5f9;
+      font-family: sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e293b;
+      margin: 5px 0 15px 0;
+    }
+
+    /* Fila superior: dos tarjetas una al lado de la otra */
+    .panel-row {
+      display: flex;
+      gap: 15px;
+      max-width: 1000px;
+      margin: 0 auto 15px auto;
+    }
+
+    .card {
+      flex: 1;
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .card h2 {
+      margin: 0 0 12px 0;
+      font-size: 1.1rem;
+      color: #1e293b;
+    }
+
+    .monitor {
+      background: #0f172a;
+      color: #10b981;
+      font-family: monospace;
+      font-size: 1.1rem;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 5px;
+    }
+
+    .monitor.vec {
+      color: #f472b6;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #64748b;
+      text-transform: uppercase;
+      display: block;
+      margin-top: 10px;
+    }
+
+    input[type=range],
+    input[type=number] {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 4px;
+    }
+
+    input[type=number] {
+      padding: 7px;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .btn-group button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* Fila inferior: la escena Descartes centrada, ANCHO FIJO */
+    .scene-row {
+      max-width: 1000px;
+      width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+      overflow: hidden;
+    }
+  </style>
+  <script type="text/javascript" src="lib/descartes-min.js" charset="utf-8"></script>
+</head>
+
+<body>
+  <h1>Puente de Datos DescartesJS ↔ HTML</h1>
+  <!-- FILA 1: PANELES HTML (arriba) -->
+
+  <div class="panel-row">
+    <!-- Tarjeta de RECEPCIÓN -->
+
+    <div class="card">
+      <h2>📥 Recepción desde Descartes</h2>
+      <label>Dato Simple (v1):</label>
+
+      <div id="out-n" class="monitor">---</div>
+      <label>Vector V:</label>
+
+      <div id="out-v" class="monitor vec">---</div>
+    </div>
+    <!-- Tarjeta de CONTROL -->
+
+    <div class="card">
+      <h2>🎛️ Control HTML → Descartes</h2>
+      <label>Mandar Valor Numérico (val_html):</label>
+      <input type="number" id="html-val" value="0">
+      <label>Mover Posición h_x (slider):</label>
+      <input type="range" id="html-slider" min="-5" max="5" step="0.1" value="0">
+      <label>Color del Punto h_c:</label>
+
+      <div class="btn-group">
+        <button onclick="setCol(1)" style="background:#2563eb;">Azul</button>
+        <button onclick="setCol(2)" style="background:#10b981;">Verde</button>
+        <button onclick="setCol(0)" style="background:#ef4444;">Rojo</button>
+      </div>
+    </div>
+  </div>
+  <!-- FILA 2: ESCENA DESCARTES (abajo, centrada) -->
+
+  <div class="scene-row">
+    <!-- Configuración IDÉNTICA al archivo laboratorio_puente_didactico que carga bien -->
+    <ajs name="Descartes" code="Descartes" width="1000" height="520">
+      <param name="tamaño" value="1000x520">
+      <param name="decimal_symbol" value=".">
+      <param name="nombre" value="">
+      <param name="Versión" value="5.5">
+      <param name="editable" value="sí">
+      <param name="Idioma" value="español">
+      <param name="Botones" value="créditos=no config=no inicio=no limpiar=no filas_norte=0 filas_sur=0 ancho_este=150 ancho_oeste=150 alto=23 ">
+      <param name="E_01" value="tipo='R2' id='Panel' y='80' ancho='450' alto='440' red='no' red10='no' ejes='no' ">
+      <param name="E_02" value="tipo='R2' id='Header' ancho='100%' alto='80' fondo='1e293b' red='no' red10='no' ejes='no' ">
+      <param name="E_03" value="tipo='R2' id='Fondo' x='450' y='80' ancho='550' alto='440' fondo='f8fafc' red='no' red10='no' ejes='no' ">
+      <param name="E_04" value="tipo='R2' id='PlanoXY' x='460' y='100' ancho='520' alto='400' red='sí' red10='sí' ejes='sí' números='sí' ">
+      <param name="C_01" value="id='v1' tipo='numérico' interfaz='pulsador' región='interior' espacio='Panel' nombre='Valor' expresión='(20,70,180,45)' valor='100' visible='sí' ">
+      <param name="C_02" value="id='btn1' interfaz='botón' tipo='numérico' región='interior' espacio='Panel' nombre='Enviar Valor' expresión='(215,70,215,45)' color='ffffff' color-int='2563eb' negrita='sí' fuente puntos='15' acción='calcular' parámetro='js_recibir_v1()' extra_style='overColor=1d4ed8|borderRadius=8' ">
+      <param name="C_03" value="id='btn2' interfaz='botón' tipo='numérico' región='interior' espacio='Panel' nombre='Enviar Vector V = [10, 20, 30]' expresión='(20,215,410,50)' color='ffffff' color-int='10b981' negrita='sí' fuente puntos='15' acción='calcular' parámetro='VEC_A_JS()' extra_style='overColor=059669|borderRadius=8' ">
+      <param name="A_01" value="id='INICIO' algoritmo='sí' evaluar='una-sola-vez' hacer='v1=100;V[0]=10;V[1]=20;V[2]=30;v_0=10;v_1=20;v_2=30;val_html=0;h_x=0;h_y=0;h_c=1' ">
+      <param name="A_02" value="id='V' vector='sí' evaluar='una-sola-vez' tamaño='3' expresión='V[0]=10;V[1]=20;V[2]=30' tipo='vector' ">
+      <param name="A_03" value="id='VEC_A_JS()' algoritmo='sí' expresión='x' hacer='v_0=V[0];v_1=V[1];v_2=V[2];js_recibir_vec()' tipo='función' ">
+      <param name="G_01" value="espacio='Header' tipo='texto' color='ffffff' coord_abs='sí' expresión='(500,42)' texto='TUTORIAL: PUENTE DESCARTES ↔ HTML' ancho='1' negrita='sí' fuente puntos='24' align='a_center' anchor='a_center_center' ">
+      <param name="G_02" value="espacio='Panel' tipo='texto' color='64748b' coord_abs='sí' expresión='(20,40)' texto='1. ENVIAR UNA VARIABLE' ancho='1' negrita='sí' fuente puntos='14' align='left' anchor='top_left' ">
+      <param name="G_03" value="espacio='Panel' tipo='texto' color='64748b' coord_abs='sí' expresión='(20,180)' texto='2. ENVIAR UN VECTOR' ancho='1' negrita='sí' fuente puntos='14' align='left' anchor='top_left' ">
+      <param name="G_04" value="espacio='Panel' tipo='texto' color='64748b' coord_abs='sí' expresión='(20,300)' texto='3. RECIBIR VALOR DESDE HTML' ancho='1' negrita='sí' fuente puntos='14' align='a_left' anchor='a_top_left' ">
+      <param name="G_05" value="espacio='Panel' tipo='texto' color='6366f1' coord_abs='sí' expresión='(20,345)' texto='{\rtf1\uc0{\fonttbl\f0\fcharset0 Arial;}\f0\fs44\b Valor HTML: \b0\b{\*\mjaformula\b{\expr val_html\decimals 2\fixed0}\b0}\b0 }' ancho='1' negrita='sí' fuente puntos='22' align='a_left' anchor='a_top_left' ">
+      <param name="G_06" value="espacio='PlanoXY' tipo='punto' color='ef4444' dibujar-si='h_c=0' coord_abs='no' expresión='(h_x,h_y)' texto='P' tamaño='12' negrita='sí' fuente puntos='16' ">
+      <param name="G_07" value="espacio='PlanoXY' tipo='punto' color='2563eb' dibujar-si='h_c=1' coord_abs='no' expresión='(h_x,h_y)' texto='P' tamaño='12' negrita='sí' fuente puntos='16' ">
+      <param name="G_08" value="espacio='PlanoXY' tipo='punto' color='10b981' dibujar-si='h_c=2' coord_abs='no' expresión='(h_x,h_y)' texto='P' tamaño='12' negrita='sí' fuente puntos='16' ">
+    </ajs>
+  </div>
+  <script>
+    // FIX: El canvas de Descartes captura el scroll. Este listener en capture phase
+    // fuerza el scroll de la página aunque el ratón esté sobre el canvas.
+    window.addEventListener('wheel', function(e) {
+      document.documentElement.scrollTop += e.deltaY;
+      document.body.scrollTop += e.deltaY;
+    }, {
+      passive: true,
+      capture: true
+    });
+
+    window.addEventListener("descartesReady", function(evt) {
+      const app = evt.detail;
+      console.log("Puente listo.");
+
+      // ── DESCARTES → HTML ──────────────────────────────────────────────
+      app.evaluator.setFunction("js_recibir_v1", function() {
+        document.getElementById('out-n').innerText = app.evaluator.getVariable("v1");
+        return 0;
+      });
+
+      app.evaluator.setFunction("js_recibir_vec", function() {
+        const v0 = app.evaluator.getVariable("v_0");
+        const v1 = app.evaluator.getVariable("v_1");
+        const v2 = app.evaluator.getVariable("v_2");
+        document.getElementById('out-v').innerText = "[" + v0 + ", " + v1 + ", " + v2 + "]";
+        return 0;
+      });
+
+      // ── HTML → DESCARTES ─────────────────────────────────────────────
+      // Confirmamos canal: ponemos val_html a 0 en la escena
+      app.evaluator.setVariable("val_html", 0);
+      app.update();
+
+      document.getElementById('html-val').addEventListener('input', function(e) {
+        const v = parseFloat(e.target.value) || 0;
+        app.evaluator.setVariable("val_html", v);
+        app.update();
+      });
+
+      document.getElementById('html-slider').addEventListener('input', function(e) {
+        app.evaluator.setVariable("h_x", parseFloat(e.target.value));
+        app.update();
+      });
+
+      window.setCol = function(c) {
+        app.evaluator.setVariable("h_c", c);
+        app.update();
+      };
+      // Inicializar color a azul (1)
+      app.evaluator.setVariable("h_c", 1);
+      app.update();
+    });
+  </script>
+
+
+
+</body>
+</html>

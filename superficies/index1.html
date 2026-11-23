@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laboratorio de superficies paramétricas</title>
+  <style>
+    :root { --ink:#172033; --muted:#68738a; --line:#dfe5ef; --paper:#f7f9fc; --blue:#315efb; --blue-soft:#eaf0ff; }
+    * { box-sizing:border-box; }
+    html, body { height:100%; margin:0; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color:var(--ink); background:var(--paper); }
+    .app { min-height:100%; display:grid; grid-template-rows:auto 1fr; }
+    header { padding:26px clamp(20px, 4vw, 56px) 20px; display:flex; align-items:flex-end; justify-content:space-between; gap:24px; background:#fff; border-bottom:1px solid var(--line); }
+    .eyebrow { margin:0 0 7px; text-transform:uppercase; letter-spacing:.14em; font-size:11px; font-weight:800; color:var(--blue); }
+    h1 { margin:0; font-size:clamp(24px, 3vw, 38px); letter-spacing:-.04em; line-height:1.05; }
+    .intro { max-width:480px; margin:0; color:var(--muted); font-size:14px; line-height:1.5; text-align:right; }
+    main { width:min(1480px, 100%); margin:auto; padding:26px clamp(16px, 4vw, 56px) 42px; display:grid; grid-template-columns:minmax(250px, 320px) minmax(0, 1fr); gap:22px; }
+    .panel { background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:0 9px 30px rgba(40,58,92,.06); overflow:hidden; }
+    .controls { padding:22px; }
+    .panel-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+    h2 { margin:0; font-size:16px; letter-spacing:-.015em; }
+    .count { color:var(--blue); background:var(--blue-soft); border-radius:999px; padding:5px 9px; font-size:11px; font-weight:800; }
+    label { display:block; color:var(--muted); font-size:12px; font-weight:700; margin-bottom:7px; }
+    select { width:100%; border:1px solid #cfd7e5; border-radius:10px; padding:11px 12px; color:var(--ink); background:#fff; font:inherit; font-size:14px; outline:none; }
+    select:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-soft); }
+    .description { min-height:72px; margin:22px 0 0; padding:13px 14px; border-radius:12px; background:#f5f7fb; color:var(--muted); font-size:13px; line-height:1.5; }
+    .equations { border-top:1px solid var(--line); margin:22px -22px 0; padding:19px 22px 0; }
+    .equations h3 { margin:0 0 13px; font-size:12px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); }
+    .formula { margin:8px 0; padding:9px 10px; overflow:auto; border-radius:8px; background:#172033; color:#d9e2ff; font:12px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace; white-space:nowrap; }
+    .formula b { color:#9fb5ff; font-weight:500; }
+    .viewer { min-width:0; display:flex; flex-direction:column; }
+    .viewer-head { padding:18px 22px; display:flex; justify-content:space-between; align-items:center; gap:16px; border-bottom:1px solid var(--line); }
+    .viewer-head p { margin:4px 0 0; color:var(--muted); font-size:12px; }
+    .status { display:flex; align-items:center; gap:7px; color:#3c7b50; font-size:11px; font-weight:700; white-space:nowrap; }
+    .dot { width:7px; height:7px; border-radius:50%; background:#52bb70; }
+    iframe { display:block; width:100%; height:min(70vh, 650px); min-height:440px; border:0; background:#eff0f1; }
+    .hint { margin:0; padding:11px 22px; color:var(--muted); font-size:11px; border-top:1px solid var(--line); }
+    @media (max-width: 780px) { header { display:block; } .intro { margin-top:12px; text-align:left; } main { grid-template-columns:1fr; } iframe { min-height:420px; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div><p class="eyebrow">Geometría · DescartesJS</p><h1>Superficies paramétricas</h1></div>
+      <p class="intro">Selecciona una superficie para explorar su representación tridimensional y consultar las ecuaciones que la generan.</p>
+    </header>
+    <main>
+      <aside class="panel controls">
+        <div class="panel-title"><h2>Catálogo</h2><span class="count" id="count"></span></div>
+        <label for="surfaceSelect">Superficie</label>
+        <select id="surfaceSelect" aria-label="Seleccionar superficie"></select>
+        <p id="description" class="description"></p>
+        <section class="equations" aria-live="polite">
+          <h3>Ecuaciones paramétricas</h3>
+          <div id="equationX" class="formula"></div>
+          <div id="equationY" class="formula"></div>
+          <div id="equationZ" class="formula"></div>
+        </section>
+      </aside>
+      <section class="panel viewer">
+        <div class="viewer-head"><div><h2 id="viewerTitle">Representación 3D</h2><p>Arrastra para rotar · rueda para acercar</p></div><div class="status"><span class="dot"></span>Editor DescartesJS</div></div>
+        <iframe id="descartesFrame" title="Representación tridimensional de la superficie"></iframe>
+        <p class="hint">La escena se reconstruye con la ecuación de la superficie seleccionada y ofrece tres modos (sólido, transparente y alambre) desde el menú inferior del visor.</p>
+      </section>
+    </main>
+  </div>
+  <script>
+    // Ruta de la librería (igual que en astroide.html). Si tu descartes-min.js
+    // está junto a index.html, cambia a 'descartes-min.js'.
+    const DESCARTES_LIB = 'lib/descartes-min.js';
+
+    const surfaces = [
+      { name:'Esfera', description:'La superficie cerrada más simétrica: todos sus puntos están a la misma distancia del centro.', domain:'U=2*pi*u; V=pi*(v-0.5)', x:'r*cos(V)*cos(U)', y:'r*cos(V)*sen(U)', z:'r*sen(V)', params:"r='1.8'", rot:'(25,0,25)', scale:'105' },
+      { name:'Toro', description:'Una circunferencia que gira alrededor de un eje exterior a ella, formando una superficie con agujero.', domain:'U=2*a*pi*u;V=2*b*pi*v', x:'(R+r*cos(V))*cos(U)', y:'(R+r*cos(V))*sen(U)', z:'r*sen(V)', params:"a='1' b='1' R='2.2' r='0.75'", rot:'(25,0,25)', scale:'90' },
+      { name:'Cilindro', description:'Superficie lateral de radio constante, parametrizada alrededor del eje vertical.', domain:'U=2*pi*u; V=2*v-1', x:'r*cos(U)', y:'r*sen(U)', z:'h*V', params:"r='1.5' h='2.8'", rot:'(25,0,25)', scale:'100' },
+      { name:'Cono', description:'Superficie de revolución cuyo radio crece linealmente desde el vértice hasta la base.', domain:'U=2*pi*u; V=v', x:'h*V*cos(U)', y:'h*V*sen(U)', z:'h*(V-0.5)', params:"h='2.5'", rot:'(25,0,25)', scale:'100' },
+      { name:'Paraboloide hiperbólico', description:'Superficie de doble curvatura, conocida como silla de montar.', domain:'U=0', x:'2*u-1', y:'t*v-1', z:'x^2-y^2', params:"t='2'", rot:'(25,0,25)', scale:'95' },
+      { name:'Hiperboloide', description:'Superficie de una hoja con cintura mínima en el centro y expansión hacia sus extremos.', domain:'U=2*pi*u; V=2*v-1', x:'a*sqrt(1+V^2)*cos(U)', y:'a*sqrt(1+V^2)*sen(U)', z:'a*V', params:"a='1.2'", rot:'(25,0,25)', scale:'90' },
+      { name:'Helicoide', description:'Superficie reglada que se obtiene al desplazar una recta mientras gira alrededor de un eje.', domain:'U=4*pi*(u-0.5); V=3*(v-0.5)', x:'V*cos(U)', y:'V*sen(U)', z:'U', params:'', rot:'(25,0,25)', scale:'75' },
+      { name:'Piriforme', description:'Superficie con forma de pera generada al rotar una curva alrededor de su eje.', domain:'U=2*pi*u; V=2*pi*v', x:'a*(1+sen(U))', y:'b*(1+sen(U))*cos(U)*cos(V)', z:'b*(1+sen(U))*cos(U)*sen(V)', params:"a='1.2' b='1.2'", rot:'(0,90,0)', scale:'95' },
+      { name:'Astroide', description:'Astroide de revolución: sus meridianos siguen una curva con potencias cúbicas.', domain:'U=2*pi*u;V=2*pi*v', x:'k*(cos(V))^3*cos(U)', y:'k*(cos(V))^3*sen(U)', z:'k*(sen(V))^3', params:"k='1.6'", rot:'(30,0,20)', scale:'115' },
+      { name:'Silla de mono', description:'Superficie algebraica con tres pliegues, una extensión de la clásica silla de montar.', domain:'U=0', x:'2*u-1', y:'t*v-1', z:'x^3-3*x*y^2', params:"t='2'", rot:'(25,0,25)', scale:'105' },
+      { name:'Elipsoide', description:'Esfera deformada con tres semiejes distintos: a, b y c controlan su extensión en cada dirección.', domain:'U=2*pi*u; V=pi*(v-0.5)', x:'a*cos(V)*cos(U)', y:'b*cos(V)*sen(U)', z:'c*sen(V)', params:"a='2.2' b='1.6' c='1.1'", rot:'(25,0,25)', scale:'95' },
+      { name:'Cinta de Möbius', description:'Superficie con una sola cara y un solo borde, obtenida al pegar los extremos de una banda tras media torsión.', domain:'U=2*pi*u; V=2*v-1', x:'(R+w*V*cos(U/2))*cos(U)', y:'(R+w*V*cos(U/2))*sen(U)', z:'w*V*sen(U/2)', params:"R='2' w='0.9'", rot:'(35,0,20)', scale:'95' },
+      { name:'Botella de Klein', description:'Superficie cerrada sin interior ni exterior; esta es su inmersión en forma de ocho en el espacio.', domain:'U=2*pi*u; V=2*pi*v', x:'(R+cos(U/2)*sen(V)-sen(U/2)*sen(2*V))*cos(U)', y:'(R+cos(U/2)*sen(V)-sen(U/2)*sen(2*V))*sen(U)', z:'sen(U/2)*sen(V)+cos(U/2)*sen(2*V)', params:"R='2'", rot:'(35,0,20)', scale:'80' },
+      { name:'Catenoide', description:'Superficie mínima generada al girar una catenaria alrededor de su eje; es la forma de una película de jabón entre dos anillos.', domain:'U=2*pi*u; V=3*(v-0.5)', x:'a*(exp(V)+exp(-V))/2*cos(U)', y:'a*(exp(V)+exp(-V))/2*sen(U)', z:'a*V', params:"a='0.6'", rot:'(25,0,25)', scale:'95' },
+      { name:'Enneper', description:'Superficie mínima que se autointersecta; tiene curvatura media cero en todos sus puntos.', domain:'U=2.4*(u-0.5); V=2.4*(v-0.5)', x:'U-U^3/3+U*V^2', y:'V-V^3/3+V*U^2', z:'U^2-V^2', params:'', rot:'(25,0,25)', scale:'85' },
+      { name:'Superficie de Dini', description:'Superficie de curvatura gaussiana negativa constante, una pseudoesfera retorcida en espiral.', domain:'U=4*pi*u; V=0.05+1.9*v', x:'a*cos(U)*sen(V)', y:'a*sen(U)*sen(V)', z:'a*(cos(V)+log(tan(V/2)))+0.2*U', params:"a='1.2'", rot:'(25,0,25)', scale:'85' },
+      { name:'Superficie romana de Steiner', description:'Superficie cuártica con tres rectas dobles que se cruzan en el origen; modelo del plano proyectivo.', domain:'U=pi*(u-0.5); V=2*pi*v', x:'r^2*cos(V)*cos(U)*sen(U)', y:'r^2*sen(V)*cos(U)*sen(U)', z:'r^2*cos(V)*sen(V)*cos(U)^2', params:"r='2.3'", rot:'(25,0,25)', scale:'75' },
+      { name:'Concha espiral', description:'Superficie en forma de caracol: un tubo cuyo radio decrece mientras se enrolla en espiral hacia el vértice.', domain:'U=2*pi*u; V=2*pi*v', x:'a*(1-v)*cos(n*V)*(1+cos(U))+c*cos(n*V)', y:'a*(1-v)*sen(n*V)*(1+cos(U))+c*sen(n*V)', z:'b*v+a*(1-v)*sen(U)', params:"a='0.9' b='3' c='0.2' n='2'", rot:'(25,0,25)', scale:'85' },
+      { name:'Paraboloide elíptico', description:'Superficie en forma de cuenco cuyas secciones horizontales son elipses y las verticales, parábolas.', domain:'U=2*pi*u; V=v', x:'a*V*cos(U)', y:'b*V*sen(U)', z:'1.6*V^2-0.8', params:"a='1.8' b='1.2'", rot:'(25,0,25)', scale:'100' },
+      { name:'Conoide de Plücker', description:'Superficie reglada cuyas rectas parten del eje vertical; ondula n veces alrededor de él.', domain:'U=2*pi*u; V=2*v-1', x:'1.8*V*cos(U)', y:'1.8*V*sen(U)', z:'h*sen(n*U)', params:"h='0.9' n='2'", rot:'(25,0,25)', scale:'100' },
+      { name:'Caja de huevos', description:'Superficie ondulada producto de dos senos, con máximos y mínimos alternados como una caja de huevos.', domain:'U=0', x:'6.28*(u-0.5)', y:'6.28*(v-0.5)', z:'h*sen(x)*sen(y)', params:"h='1.2'", rot:'(25,0,25)', scale:'62' },
+      { name:'Gota', description:'Superficie de revolución en forma de lágrima, con un vértice puntiagudo en la parte superior.', domain:'U=pi*u; V=2*pi*v', x:'a*sen(U)*sen(U/2)*cos(V)', y:'a*sen(U)*sen(U/2)*sen(V)', z:'a*1.4*(cos(U)-0.2)', params:"a='1.6'", rot:'(25,0,25)', scale:'105' },
+      { name:'Paraguas de Whitney', description:'Superficie con un punto singular en el origen y una recta de autointersección: el mango del paraguas.', domain:'U=2*(u-0.5); V=2*(v-0.5)', x:'t*U*V', y:'t*U', z:'t*V^2', params:"t='1.4'", rot:'(25,0,25)', scale:'100' },
+      { name:'Superficie de Scherk', description:'Superficie mínima doblemente periódica, con forma de tablero de ajedrez de pasos y valles.', domain:'U=0', x:'2.4*(u-0.5)', y:'2.4*(v-0.5)', z:'log(cos(y)/cos(x))', params:'', rot:'(25,0,25)', scale:'85' },
+      { name:'Sombrero mexicano', description:'Superficie de revolución dada por la función sinc: una cima central rodeada por ondas que se amortiguan.', domain:'U=0', x:'12*(u-0.5)', y:'12*(v-0.5)', z:'h*sen(sqrt(x^2+y^2)+0.001)/(sqrt(x^2+y^2)+0.001)', params:"h='2.5'", rot:'(25,0,25)', scale:'38' }
+    ];
+
+    const select = document.getElementById('surfaceSelect');
+    const frame = document.getElementById('descartesFrame');
+    document.getElementById('count').textContent = `${surfaces.length} modelos`;
+    surfaces.forEach((surface, i) => select.add(new Option(`${String(i + 1).padStart(2, '0')}  ·  ${surface.name}`, i)));
+
+    // Escapa texto para usarlo dentro de un atributo HTML entre comillas dobles.
+    const esc = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    // Genera <param name="..." value="..."> con las comillas siempre cerradas.
+    const param = (name, value) => `<param name="${name}" value="${esc(value)}">`;
+
+    // Convierte "a='1' b='1' R='2.2'" en [{id:'a', valor:'1'}, ...]
+    function parseParams(str) {
+      const out = [], re = /(\w+)='([^']*)'/g;
+      let m; while ((m = re.exec(str || ''))) out.push({ id: m[1], valor: m[2] });
+      return out;
+    }
+
+    function scene(surface, mode) {
+      const expr = `${surface.domain};x=${surface.x};y=${surface.y};z=${surface.z}`;
+      const common = `espacio='E1' tipo='superficie' expresión='${expr}' rotfin='${surface.rot}'`;
+
+      // Cada constante usada en la superficie se declara como control numérico
+      // (pulsador), apilados en la esquina del espacio 3D.
+      const controls = parseParams(surface.params).map((p, i) => param(`C_${String(i + 2).padStart(2, '0')}`,
+        `id='${p.id}' tipo='numérico' interfaz='pulsador' región='sur' espacio='E1' nombre='${p.id}' ` +
+        `expresión='(0,${i * 44},150,40)' valor='${p.valor}' visible='sí' ` +
+        `label_color='007b00' label_text_color='ffffff' fuente puntos='20'`));
+
+      const parts = [
+        param('tamaño', '800x600'),
+        param('decimal_symbol', '.'),
+        param('expand', 'fit'),
+        param('nombre', surface.name),
+        param('Versión', '5.5'),
+        param('editable', 'sí'),
+        param('Idioma', 'español'),
+        param('Botones', 'créditos=no config=no inicio=no limpiar=no filas_norte=0 filas_sur=0 ancho_este=140 ancho_oeste=140 alto=46'),
+        param('E_01', "tipo='R2' id='E2' ancho='100%' alto='100%' fondo='000000' red='no' red10='no' ejes='no'"),
+        param('E_02', `tipo='R3' R3='sí' id='E1' ancho='100%' alto='100%' escala='${surface.scale}' fondo='ff000000'`),
+        param('C_01', `id='ver' tipo='numérico' interfaz='menú' región='sur' espacio='E1' expresión='(0,0)' valor='${mode}' visible='no' opciones='color sólido[1],color transparente[2],modelo alambre[3]'`),
+        ...controls,
+        param('A_01', "id='INICIO' algoritmo='sí' evaluar='una-sola-vez' hacer='pi=3.14159;E1.rot.z=90;;'"),
+        param('A_02', "id='CALCULOS' algoritmo='sí' evaluar='siempre'"),
+        param('G_01', `espacio='E1' tipo='texto' color='ffffff' coord_abs='no' expresión='(0,-4)' texto='${surface.name}' ancho='1' fuente puntos='28' align='a_left' anchor='a_center_center'`),
+        param('S_01', `${common} color='ff8e00' color_reverso='00ff00' dibujar-si='ver=1' aristas='70c0c0c0' modelo='luz' Nu='34' Nv='28'`),
+        param('S_02', `${common} color='7cff8e00' color_reverso='7b00ff00' dibujar-si='ver=2' modelo='metal' Nu='34' Nv='28'`),
+        param('S_03', `${common} color='eeffaa' color_reverso='eeffaa' dibujar-si='ver=3' modelo='alambre' Nu='34' Nv='34'`)
+      ];
+
+      return `<!doctype html><html><head><meta charset="utf-8">` +
+        `<script src="${DESCARTES_LIB}"><\/script></head>` +
+        `<body style="padding:0;margin:0;background:#eff0f1">` +
+        `<ajs name="Descartes" code="Descartes" width="800" height="600">${parts.join('')}</ajs></body></html>`;
+    }
+
+    function update() {
+      const surface = surfaces[Number(select.value)];
+      document.getElementById('description').textContent = surface.description;
+      document.getElementById('viewerTitle').textContent = surface.name;
+      document.getElementById('equationX').innerHTML = `<b>x =</b> ${esc(surface.x)}`;
+      document.getElementById('equationY').innerHTML = `<b>y =</b> ${esc(surface.y)}`;
+      document.getElementById('equationZ').innerHTML = `<b>z =</b> ${esc(surface.z)}`;
+      // La escena se inyecta como srcdoc (antes se apuntaba a viewer.html, que no existe).
+      frame.srcdoc = scene(surface, 1);
+    }
+    select.addEventListener('change', update);
+    select.value = 8; update();
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Red Descartes</title>
+  <link rel="stylesheet" href="chatbot.css">
+  <script src="chatbot.js"></script>
+  <script type="text/javascript" src="lib/descartes-min.js" charset="utf-8"></script>
+</head>
+
+<body>
+  <ajs name="Descartes" code="Descartes" width="1100" height="850">
+    <param name="tamaño" value="1100x850">
+    <param name="decimal_symbol" value=".">
+    <param name="expand" value="fit">
+    <param name="nombre" value="">
+    <param name="Versión" value="5.5">
+    <param name="editable" value="no">
+    <param name="Idioma" value="español">
+    <param name="Botones" value="créditos=no config=no inicio=no limpiar=no filas_norte=0 filas_sur=0 ancho_este=150 ancho_oeste=150 alto=40 ">
+    <param name="E_01" value="tipo='R2' id='E1' ancho='100%' alto='100%' fondo='GradL(1000,0,0,700,stop|0|f09494,stop|0.25|d487ca,stop|0.5|d88de2,stop|0.75|9776e5,stop|1|949ff4)' red='no' red10='no' ejes='no' border_width='3' border_color='GradL(1000,0,0,700,)' border_radius='5' ">
+    <param name="E_02" value="tipo='HTMLIFrame' id='Respuesta' x='50' y='230' ancho='1000' alto='500' archivo='respuesta.html' ">
+    <param name="C_01" value="id='provider' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🤖 Proveedor' expresión='(55,105,330,34)' visible='no' opciones='Red Descartes,Pollinations,OpenRouter' label_color='d88de0' label_text_color='111936' fuente puntos='20' ">
+    <param name="C_02" value="id='imageModel' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🖌️ Modelo' expresión='(430,105,450,34)' visible='no' opciones='zimage (Rápido),flux (Detallado),GPT image 1 (Creativo),klein (Realista),Flux 3 Image (Nuevo),Recraft 4.1' dibujar-si='provider=0' label_color='ffffff' label_text_color='111936' fuente puntos='20' ">
+    <param name="C_03" value="id='imageModel' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🖌️ Modelo' expresión='(430,105,450,34)' visible='no' opciones='zimage (Rápido / Muy permisivo),krea/krea-2-medium (Artístico),flux.2-pro (Alta fidelidad),grok-imagine-image (Grok),ideogram-v4-turbo,wan-2.7-image-pro,gpt-image-2.5-flare (OpenAI),gpt-image-2.5-sunburst (OpenAI),klein (Realista),gptimage (Creativo)' dibujar-si='provider=1' label_color='ffffff' label_text_color='111936' fuente puntos='20' ">
+    <param name="C_04" value="id='imageModel' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🖌️ Modelo' expresión='(430,105,450,34)' visible='no' opciones='Gemini 2.5 Flash Image,GPT Image mini,Gemini 3.1 Flash Image,GPT Image 2,Klein,MAI Image 2.5,Grok xAI,Recraft V4.1,Seedream 4.5,Flux.2 Flex' dibujar-si='provider=2' label_color='ffffff' label_text_color='111936' fuente puntos='20' ">
+    <param name="C_05" value="id='apiKey' tipo='numérico' interfaz='campo de texto' solo_texto='sí' región='interior' espacio='E1' expresión='(320,160,500,34)' valor='&squot;&squot;' visible='sí' dibujar-si='provider>0' label_color='ffffff' label_text_color='111936' fuente puntos='16' ">
+    <param name="C_06" value="id='clearApiKey' interfaz='botón' tipo='botón' región='interior' espacio='E1' nombre='🚮' expresión='(835,160,55,34)' color='ffffff' color-int='b91c1c' fuente puntos='18' acción='calcular' parámetro='apiKey=&squot; &squot;' dibujar-si='provider>0' extra_style='overColor=991b1b|borderRadius=8' ">
+    <param name="C_07" value="id='prompt' tipo='texto' espacio='E1' expresión='(55,755,850,85)' fuente puntos='20' ">
+    <param name="C_08" value="id='send' interfaz='botón' tipo='botón' región='interior' espacio='E1' nombre='Enviar' expresión='(925,760,120,35)' color='ffffff' color-int='5965e8' fuente puntos='20' acción='calcular' parámetro='genera()' extra_style='borderRadius=8' ">
+    <param name="C_09" value="id='clearPrompt' interfaz='botón' tipo='botón' región='interior' espacio='E1' nombre='🚮' expresión='(925,805,120,35)' color='ffffff' color-int='b91c1c' fuente puntos='18' acción='calcular' parámetro='prompt=&squot; &squot;' extra_style='overColor=991b1b|borderRadius=8' ">
+    <param name="C_10" value="id='RA' tipo='numérico' interfaz='menú' región='interior' espacio='E1' nombre='🖌️ RA' expresión='(900,105,180,34)' visible='no' opciones='Cuadrado (1:1),Panorámico (16:9),Vertical (3:4)' label_color='ffffff' label_text_color='111936' fuente puntos='20' ">
+    <param name="A_01" value="id='INICIO' algoritmo='sí' evaluar='una-sola-vez' ">
+    <param name="A_02" value="id='CALCULOS' algoritmo='sí' evaluar='siempre' ">
+    <param name="A_03" value="id='genera()' algoritmo='sí' expresión='0' hacer='sendPrompt()' tipo='función' ">
+    <param name="G_01" value="espacio='E1' tipo='texto' color='0051ff' coord_abs='sí' expresión='(550,30)' texto='Imagina con DescartesJS' ancho='970' fuente puntos='40' align='a_center' anchor='a_center_center' shadowColor='000000' shadowOffsetX='3' shadowOffsetY='2' ">
+    <param name="G_02" value="espacio='E1' tipo='texto' color='ffffff' coord_abs='sí' expresión='(550,70)' texto='Selecciona el proveedor, el modelo y escribe tu solicitud' ancho='800' align='a_center' anchor='a_center_center' ">
+    <param name="G_03" value="espacio='E1' tipo='texto' color='ffaf00' dibujar-si='provider>0' coord_abs='sí' expresión='(180,160)' texto='🔑 API Key' ancho='1' negrita='sí' fuente puntos='22' align='a_left' anchor='a_top_left' shadowColor='000000' shadowOffsetX='3' shadowOffsetY='2' ">
+  </ajs>
+  <main class="app-shell">
+    <section class="scene-shell" aria-label="Escena de Descartes"></section>
+  </main>
+
+
+
+</body>
+</html>

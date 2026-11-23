@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body { padding: 0; color: #fff; font-family: 'Segoe UI', Arial, sans-serif; background: transparent; }
+    .response-card { display: flex; width: 100%; height: 100%; padding: 22px 26px; overflow: hidden; flex-direction: column; border: 1px solid rgba(255,255,255,.65); border-radius: 18px; background: rgba(28, 24, 82, .92); box-shadow: 0 15px 35px rgba(32, 20, 80, .25); }
+    .response-heading { display: flex; align-items: center; gap: 9px; font-size: 17px; font-weight: 600; letter-spacing: .02em; }
+    .response-dot { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; background: #73f2c5; box-shadow: 0 0 12px #73f2c5; }
+    #generation-status { display: none; margin-top: 8px; color: #73f2c5; font-size: 14px; font-weight: 600; }
+    #response-text { height: calc(100% - 48px); margin: 20px 0 0; overflow: auto; white-space: pre-wrap; font-size: 16px; line-height: 1.65; }
+    #response-image { display: none; width: 100%; min-height: 0; flex: 1; margin-top: 20px; object-fit: contain; border-radius: 12px; background: rgba(0,0,0,.18); cursor: zoom-in; }
+    #image-thumbnails { display: none; height: 76px; min-height: 76px; gap: 8px; margin-top: 12px; overflow-x: auto; align-items: center; }
+    .thumbnail { width: 58px; height: 58px; padding: 2px; flex: 0 0 auto; border: 2px solid transparent; border-radius: 8px; background: rgba(255,255,255,.18); cursor: pointer; }
+    .thumbnail.selected { border-color: #73f2c5; box-shadow: 0 0 10px rgba(115,242,197,.55); }
+    .thumbnail img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 5px; }
+    #image-modal { display: none; position: fixed; inset: 0; z-index: 20; align-items: center; justify-content: center; padding: 24px; background: rgba(8, 7, 28, .86); }
+    #image-modal.visible { display: flex; }
+    .modal-content { display: flex; max-width: min(94vw, 900px); max-height: 94vh; flex-direction: column; align-items: center; gap: 14px; }
+    #modal-image { display: block; max-width: 90vw; max-height: calc(94vh - 70px); object-fit: contain; border: 1px solid rgba(255,255,255,.7); border-radius: 12px; box-shadow: 0 18px 60px rgba(0,0,0,.5); cursor: zoom-out; }
+    #download-image { border: 0; border-radius: 8px; padding: 10px 18px; color: #111936; font: 600 14px 'Segoe UI', Arial, sans-serif; cursor: pointer; background: #73f2c5; }
+    #download-image:hover { background: #a3ffdd; }
+  </style>
+</head>
+<body>
+  <section class="response-card" aria-live="polite">
+    <div class="response-heading"><span class="response-dot"></span><span>Respuesta de la IA</span></div>
+    <div id="generation-status" aria-live="polite"></div>
+    <div id="response-text">Escribe una solicitud y pulsa «Enviar» para comenzar.</div>
+    <img id="response-image" alt="Imagen generada por la IA">
+    <div id="image-thumbnails" aria-label="Imágenes generadas"></div>
+  </section>
+  <div id="image-modal" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+    <div class="modal-content">
+      <img id="modal-image" alt="Imagen ampliada">
+      <button type="button" id="download-image">Descargar imagen</button>
+    </div>
+  </div>
+  <script>
+    function notifyReady() {
+      window.parent.postMessage({ type: 'descartes-response-ready' }, '*');
+    }
+    window.addEventListener('message', event => {
+      const text = document.getElementById('response-text');
+      const image = document.getElementById('response-image');
+      const modal = document.getElementById('image-modal');
+      const modalImage = document.getElementById('modal-image');
+      const thumbnails = document.getElementById('image-thumbnails');
+      const status = document.getElementById('generation-status');
+      if (event.data?.type === 'descartes-image-response') {
+        text.style.display = 'none';
+        status.textContent = event.data.status || '';
+        status.style.display = event.data.status ? 'block' : 'none';
+        image.src = event.data.src || '';
+        image.style.display = 'block';
+        modalImage.src = image.src;
+        thumbnails.style.display = 'flex';
+        thumbnails.innerHTML = '';
+        (event.data.images || []).forEach(src => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = `thumbnail${src === image.src ? ' selected' : ''}`;
+          button.title = 'Mostrar imagen';
+          const thumbnail = document.createElement('img');
+          thumbnail.src = src;
+          thumbnail.alt = 'Miniatura de imagen generada';
+          button.appendChild(thumbnail);
+          button.addEventListener('click', () => {
+            image.src = src;
+            modalImage.src = src;
+            thumbnails.querySelectorAll('.thumbnail').forEach(item => item.classList.remove('selected'));
+            button.classList.add('selected');
+          });
+          thumbnails.appendChild(button);
+        });
+      }
+      if (event.data?.type === 'descartes-response' || (event.data?.type === 'set' && event.data.name === 'response')) {
+        text.textContent = String(event.data.text ?? event.data.value ?? '');
+        text.style.display = 'block';
+        status.style.display = 'none';
+        image.style.display = 'none';
+        image.removeAttribute('src');
+        thumbnails.innerHTML = '';
+        thumbnails.style.display = 'none';
+        modal.classList.remove('visible');
+        modalImage.removeAttribute('src');
+      }
+    });
+    window.addEventListener('load', notifyReady);
+    notifyReady();
+
+    const image = document.getElementById('response-image');
+    const modal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+    const downloadButton = document.getElementById('download-image');
+
+    image.addEventListener('click', () => {
+      if (!image.src) return;
+      modalImage.src = image.src;
+      modal.classList.add('visible');
+    });
+    modalImage.addEventListener('click', () => modal.classList.remove('visible'));
+    modal.addEventListener('click', event => {
+      if (event.target === modal) modal.classList.remove('visible');
+    });
+    downloadButton.addEventListener('click', event => {
+      event.stopPropagation();
+      if (!modalImage.src) return;
+      const link = document.createElement('a');
+      link.href = modalImage.src;
+      link.download = 'imagen-generada.png';
+      link.click();
+    });
+  </script>
+</body>
+</html>
